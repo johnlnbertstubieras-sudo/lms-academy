@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assessments | The Gifted Academy</title>
+<style>:root{--bg:#0a2150;--text:#fff;--muted:#b8c7ee;--accent:#f5c542;--primary:#2b7fff;--primary-hover:#4a92ff;--side-bg:rgba(6,24,66,.72);--line:rgba(130,165,255,.18);--card-bg:linear-gradient(160deg,rgba(20,70,170,.35),rgba(10,33,80,.55));--card-border:rgba(130,165,255,.28);--card-shadow:0 24px 60px rgba(0,0,0,.3);--row-bg:rgba(6,24,66,.35);--chip:rgba(255,255,255,.07);--icon:#c7d4f5;--stat-ico:#1a62e6;--field-bg:rgba(6,24,66,.55);--placeholder:#8fa4d8;--date-bg:#1a4fb8}
+[data-theme=light]{--bg:#f4f7ff;--text:#0c2452;--muted:#3d507e;--side-bg:#fff;--line:#dbe3f5;--card-bg:#fff;--card-border:#dbe3f5;--card-shadow:0 16px 40px rgba(12,36,82,.1);--row-bg:#f7f9ff;--chip:#e9eefb;--icon:#4b5f8f;--field-bg:#fff;--placeholder:#7a89ad;--date-bg:#dce9ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:flex;font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);transition:background-color .3s,color .3s}
+.bg{position:fixed;inset:0;z-index:0;background:url("images/background.jpg") center top/cover no-repeat}
+[data-theme=light] .bg{opacity:.12}
+a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit;color:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+svg{stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.side{position:fixed;inset:0 auto 0 0;width:290px;z-index:5;padding:24px 16px;background:var(--side-bg);border-right:1px solid var(--line);backdrop-filter:blur(8px);display:flex;flex-direction:column;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem;padding:0 8px 6px}.brand img{height:34px}
+.role{margin:0 8px 16px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.group{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:14px 16px 8px}
+.side nav a{display:flex;align-items:center;gap:16px;height:42px;padding:0 16px;margin-bottom:4px;border-radius:10px;transition:background .2s}
+.side nav a svg{width:22px;height:22px;flex:none}.side nav a:hover{background:var(--chip)}
+.side nav a.active{background:var(--primary);color:#fff;font-weight:600}
+.side hr{border:0;border-top:1px solid var(--line);margin:16px 16px 4px}
+.wrap{position:relative;z-index:1;margin-left:290px;flex:1;min-width:0;padding:0 40px 48px}
+.top{height:76px;display:flex;align-items:center;justify-content:flex-end;gap:22px}
+.icon-btn{position:relative;background:none;border:0;cursor:pointer;color:var(--icon);display:grid;place-items:center}.icon-btn svg{width:24px;height:24px}
+.badge{position:absolute;top:-6px;right:-7px;min-width:16px;height:16px;border-radius:8px;background:#e5484d;color:#fff;font-size:.68rem;font-weight:700;display:grid;place-items:center}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;display:grid;place-items:center}
+.theme-toggle{display:flex;align-items:center;gap:6px;background:none;border:0;cursor:pointer;color:var(--muted)}
+.theme-toggle .track{width:32px;height:20px;border-radius:999px;background:rgba(255,255,255,.35);position:relative}
+.theme-toggle .thumb{position:absolute;top:3px;left:4px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .25s}
+[data-theme=light] .theme-toggle .track{background:rgba(12,36,82,.3)}[data-theme=light] .theme-toggle .thumb{transform:translateX(10px)}
+.hello{color:var(--primary-hover);font-size:.95rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;margin-top:8px}
+h1{font-size:2.6rem;font-weight:800;line-height:1.2}.tagline{color:var(--muted);margin:6px 0 22px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:22px}.head .tagline{margin-bottom:0}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start}.layout>*{min-width:0}
+.panel{border-radius:16px;border:1px solid var(--card-border);background:var(--card-bg);box-shadow:var(--card-shadow)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.stat{display:flex;align-items:center;gap:12px;padding:16px}
+.stat .ico{width:48px;height:48px;border-radius:50%;background:var(--stat-ico);color:#fff;display:grid;place-items:center;flex:none}.stat .ico svg{width:22px;height:22px}
+.stat b{display:block;font-size:1.7rem;line-height:1.15;margin:2px 0}.stat small{display:block;color:var(--muted);font-size:.76rem}
+.sec{margin-top:22px;padding:24px 26px}.side-col{display:grid;gap:22px}.side-col .sec{margin-top:0}
+.sec-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.sec-head h2{font-size:1.35rem;display:flex;align-items:center;gap:12px}.sec-head h2 svg{width:26px;height:26px;color:var(--icon)}
+.link{display:inline-flex;align-items:center;gap:6px;color:var(--primary-hover);font-size:.92rem;font-weight:500}.link svg{width:16px;height:16px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{border:0;cursor:pointer;padding:8px 16px;border-radius:999px;background:var(--chip);color:var(--muted);font-size:.88rem}
+.tab[aria-selected=true]{background:var(--primary);color:#fff;font-weight:600}
+.row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;align-items:center;gap:18px;padding:16px 18px;margin-top:12px;border-radius:14px;background:var(--row-bg);border:1px solid var(--line);transition:border-color .2s}
+.row:hover{border-color:var(--card-border)}
+.r-main{display:flex;align-items:center;gap:16px;min-width:0}.r-main div{min-width:0}
+.tile{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;color:#fff;flex:none}.tile svg{width:27px;height:27px}
+.r-main small,.r-info small{display:block;color:var(--muted);font-size:.8rem}.r-main strong{display:block;font-weight:600;margin:2px 0}
+.r-info{font-size:.85rem;line-height:1.5}.r-info b{font-weight:600}
+.act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:inline-block;padding:3px 14px;border-radius:999px;font-size:.78rem;font-weight:600;color:#fff}
+.pill.draft{background:#5b6b93}.pill.upcoming{background:#b9852b}.pill.open{background:#14805f}.pill.closed{background:#7a4b4b}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 20px;border-radius:999px;border:1px solid var(--primary);background:transparent;font-weight:600;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn svg{width:16px;height:16px}.btn:hover{background:var(--chip)}.btn.solid{background:var(--primary);color:#fff}.btn.solid:hover{background:var(--primary-hover)}.btn.sm{height:34px;padding:0 14px;font-size:.82rem}
+.up-item{display:flex;align-items:center;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.date{width:58px;height:62px;border-radius:12px;background:var(--date-bg);color:#fff;display:grid;place-content:center;text-align:center;flex:none}
+[data-theme=light] .date{color:#0c2452}.date small{font-size:.82rem}.date b{font-size:1.5rem;line-height:1.1}
+.up-item div:nth-child(2){flex:1;min-width:0}.up-item strong{display:block}.up-item span{color:var(--muted);font-size:.85rem}
+.none{color:var(--muted);text-align:center;padding:32px 0;font-size:.92rem}
+.field{display:flex;flex-direction:column;gap:6px;font-size:.85rem;color:var(--muted)}
+.field input,.field select,.field textarea{height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--card-border);background:var(--field-bg);color:var(--text);outline:0}
+.field textarea{height:80px;padding:10px 14px;resize:vertical}.field select option{color:#0c2452}
+.field input:focus,.field select:focus{border-color:var(--primary-hover)}
+dialog{margin:auto;width:min(560px,92vw);padding:26px;border-radius:18px;border:1px solid var(--card-border);background:var(--bg);color:var(--text)}
+dialog::backdrop{background:rgba(0,0,0,.55)}dialog h2{margin-bottom:16px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form .full{grid-column:1/-1}.form .act{grid-column:1/-1;margin-top:6px}
+@media(max-width:1560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1250px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:860px){.side{position:static;width:100%;height:auto}body{flex-direction:column}.wrap{margin-left:0;padding:0 20px 40px}.side nav{display:flex;flex-wrap:wrap}.group,.side hr{display:none}}
+@media(max-width:700px){.stats,.form{grid-template-columns:1fr}.row{grid-template-columns:1fr}.act{justify-content:flex-start}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.file{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:14px;background:var(--row-bg);border:1px solid var(--line)}
+.file .r-main strong{line-height:1.3}.f-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:.8rem}
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;background:rgba(43,127,255,.28);font-size:.76rem}
+.tbl .row{grid-template-columns:minmax(0,1.4fr) 110px minmax(0,1fr) auto}
+.bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--primary)}
+</style></head>
+<body><div class="bg" aria-hidden="true"></div><aside class="side"></aside>
+<div class="wrap"><div class="top"></div>
+<main><div class="head"><div><p class="hello">Manage</p><h1>Assessments</h1><p class="tagline">Create, publish and close quizzes and activities for your classes.</p></div>
+<button class="btn solid" id="new" type="button"><span data-i="plus"></span>New assessment</button></div>
+<section class="stats" id="stats"></section>
+<section class="panel sec"><div class="sec-head"><h2><span data-i="doc"></span>All assessments</h2><div class="tabs" id="tabs" role="tablist"></div></div><div id="list"></div></section>
+</main></div><dialog id="dlg"><h2 id="dlgTitle">New assessment</h2>
+<div class="form" id="form">
+ <label class="field full">Title<input id="f_title" required></label>
+ <label class="field">Subject<select id="f_subject"><option>Basic Numeracy</option><option>Physical Education</option><option>Social Skills</option><option>Arts and Crafts</option></select></label>
+ <label class="field">Type<select id="f_type"><option>Quiz</option><option>Activity</option><option>Exam</option></select></label>
+ <label class="field">Opens<input id="f_open" type="datetime-local"></label>
+ <label class="field">Due / closes<input id="f_due" type="datetime-local"></label>
+ <label class="field">Questions<input id="f_q" type="number" min="1" value="10"></label>
+ <label class="field">Total points<input id="f_pts" type="number" min="1" value="10"></label>
+ <div class="act"><button class="btn" id="cancel" type="button">Cancel</button><button class="btn" id="draft" type="button">Save draft</button><button class="btn solid" id="publish" type="button">Publish</button></div>
+</div></dialog>
+<script>// Shared shell for all instructor pages (theme, icons, sidebar, top bar, helpers)
+const root = document.documentElement;
+try { const s = localStorage.getItem("theme"); if (s) root.setAttribute("data-theme", s); } catch (e) {}
+const P = {
+  home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+  cap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/>',
+  doc:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+  chart:'<rect x="4" y="11" width="4" height="9"/><rect x="10" y="4" width="4" height="16"/><rect x="16" y="8" width="4" height="12"/>',
+  folder:'<path d="M3 6h7l2 2h9v11H3z"/>',
+  horn:'<path d="M3 10v4h4l9 5V5L7 10z"/><path d="M19 9a4 4 0 0 1 0 6"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+  chat:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8"/>',
+  chev:'<path d="M9 5l7 7-7 7"/>', arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  users:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2A5 5 0 0 1 21 19"/>',
+  task:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', book:'<path d="M2 5c3-1 7-1 10 1 3-2 7-2 10-1v14c-3-1-7-1-10 1-3-2-7-2-10-1z"/><path d="M12 6v14"/>'
+};
+const icon = n => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const fmtDT = v => new Date(v).toLocaleString("en-US", { month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit" });
+
+const NAV = [["INSTRUCTOR"],
+  ["instructor-dashboard.html","home","Dashboard"],["instructor-calendar.html","cal","Calendar"],["instructor-classes.html","cap","My Classes"],
+  ["instructor-assessments.html","doc","Assessments"],["instructor-gradebook.html","chart","Gradebook"],["hr"],
+  ["RESOURCES"],["instructor-materials.html","folder","Materials"],["instructor-announcements.html","horn","Announcements"]];
+const here = location.pathname.split("/").pop() || "instructor-dashboard.html";
+document.querySelector(".side").innerHTML =
+  `<a class="brand" href="instructor-dashboard.html"><img src="images/logo.png" alt=""><span>The Gifted Academy</span></a><p class="role"></p><nav aria-label="Main">` +
+  NAV.map(n => n[0]==="hr" ? "<hr>" : n.length===1 ? `<p class="group">${n[0]}</p>` :
+    `<a href="${n[0]}"${n[0]===here?' class="active" aria-current="page"':""}>${icon(n[1])}${n[2]}</a>`).join("") + `</nav>`;
+document.querySelector(".top").innerHTML =
+  `<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark and light theme"><span aria-hidden="true">&#9790;</span><span class="track"><span class="thumb"></span></span></button>
+   <button class="icon-btn" type="button" aria-label="Notifications">${icon("bell")}<span class="badge">2</span></button>
+   <button class="icon-btn" type="button" aria-label="Messages">${icon("chat")}</button>
+   <div class="avatar" aria-label="Signed in as C">C</div>`;
+$("themeToggle").addEventListener("click", () => {
+  const next = root.getAttribute("data-theme")==="light" ? "dark" : "light";
+  root.setAttribute("data-theme", next); try { localStorage.setItem("theme", next); } catch (e) {}
+});
+document.querySelectorAll("[data-i]").forEach(el => el.innerHTML = icon(el.dataset.i));
+const greet = $("greet"); if (greet) greet.textContent = (h => h<12?"Good morning,":h<18?"Good afternoon,":"Good evening,")(new Date().getHours());
+</script>
+<script>
+// ---- Data: replace with fetch() to api/assessments.php ----
+// published=false -> "draft" (invisible to students). Student status is DERIVED, never stored:
+// now<open -> upcoming | open<=now<=due -> open | now>due or closedEarly -> closed | has submission -> submitted
+let DATA=[
+ {id:1,subject:"Basic Numeracy",title:"Counting and Number Recognition",type:"Quiz",open:"2026-10-05T09:00",due:"2026-10-05T10:00",questions:10,points:10,published:true,submissions:8,graded:4},
+ {id:2,subject:"Basic Numeracy",title:"Number Patterns Quiz",type:"Quiz",open:"2026-09-18T09:00",due:"2026-09-18T10:00",questions:10,points:10,published:true,submissions:12,graded:12},
+ {id:3,subject:"Basic Numeracy",title:"Shapes Review",type:"Quiz",open:"",due:"",questions:8,points:8,published:false,submissions:0,graded:0}];
+const now=()=>new Date();
+const status=a=>!a.published?"draft":a.closedEarly||(a.due&&now()>new Date(a.due))?"closed":a.open&&now()<new Date(a.open)?"upcoming":"open";
+const LABEL={draft:"Draft",upcoming:"Scheduled",open:"Open",closed:"Closed"};
+const state={tab:"all",edit:null};
+function render(){
+ $("stats").innerHTML=Object.keys(LABEL).map(k=>`<div class="panel stat"><div class="ico">${icon(k==="draft"?"doc":k==="upcoming"?"cal":k==="open"?"clock":"task")}</div><div><span>${LABEL[k]}</span><b>${DATA.filter(a=>status(a)===k).length}</b><small>${k==="draft"?"Hidden from students":k==="open"?"Students can take":"&nbsp;"}</small></div></div>`).join("");
+ $("tabs").innerHTML=["all",...Object.keys(LABEL)].map(t=>`<button class="tab" role="tab" data-tab="${t}" aria-selected="${state.tab===t}">${t==="all"?"All":LABEL[t]}</button>`).join("");
+ const rows=DATA.filter(a=>state.tab==="all"||status(a)===state.tab);
+ $("list").innerHTML=rows.length?rows.map(a=>{const s=status(a);return `<article class="row"><div class="r-main"><div class="tile" style="background:linear-gradient(135deg,#2b9bff,#1a62e6)">${icon("doc")}</div><div><small>${esc(a.subject)} • ${esc(a.type)}</small><strong>${esc(a.title)}</strong><span class="pill ${s}">${LABEL[s]}</span></div></div>
+ <div class="r-info"><small>Window</small>${a.open?fmtDT(a.open):"Not set"}${a.due?"<br>→ "+fmtDT(a.due):""}<br><b>${a.submissions}</b> submitted • <b>${a.graded}</b> graded • ${a.questions} Qs</div>
+ <div class="act">${s==="draft"?`<button class="btn sm solid" data-act="pub" data-id="${a.id}">Publish</button>`:""}${s==="open"||s==="upcoming"?`<button class="btn sm" data-act="close" data-id="${a.id}">Close</button>`:""}
+ <button class="btn sm" data-act="edit" data-id="${a.id}">Edit</button><a class="btn sm" href="instructor-gradebook.html?assessment=${a.id}">Submissions</a></div></article>`}).join(""):`<p class="none">No assessments here yet.</p>`;
+}
+const F=["title","subject","type","open","due","q","pts"].reduce((o,k)=>(o[k]=$("f_"+k),o),{});
+function openForm(a){state.edit=a?a.id:null;$("dlgTitle").textContent=a?"Edit assessment":"New assessment";
+ F.title.value=a?a.title:"";F.subject.value=a?a.subject:"Basic Numeracy";F.type.value=a?a.type:"Quiz";F.open.value=a?a.open:"";F.due.value=a?a.due:"";F.q.value=a?a.questions:10;F.pts.value=a?a.points:10;$("dlg").showModal();}
+function save(published){
+ if(!F.title.value.trim()){F.title.focus();return}
+ if(published&&(!F.open.value||!F.due.value||F.due.value<=F.open.value)){alert("Set an open time and a due time after it before publishing.");return}
+ const v={title:F.title.value.trim(),subject:F.subject.value,type:F.type.value,open:F.open.value,due:F.due.value,questions:+F.q.value,points:+F.pts.value,published};
+ if(state.edit)Object.assign(DATA.find(a=>a.id===state.edit),v);else DATA.unshift({id:Date.now(),submissions:0,graded:0,...v});
+ // TODO: POST/PUT api/assessments.php, then notify enrolled students (see NOTES.md)
+ $("dlg").close();render();}
+$("new").onclick=()=>openForm();$("cancel").onclick=()=>$("dlg").close();
+$("draft").onclick=()=>save(false);$("publish").onclick=()=>save(true);
+$("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){state.tab=b.dataset.tab;render()}});
+$("list").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const a=DATA.find(x=>x.id==b.dataset.id);
+ if(b.dataset.act==="edit")openForm(a);
+ if(b.dataset.act==="pub"){if(!a.open||!a.due){openForm(a);return}a.published=true}
+ if(b.dataset.act==="close"&&confirm("Close this assessment now? Students will no longer be able to submit."))a.closedEarly=true;
+ render();});
+render();
+</script></body></html>

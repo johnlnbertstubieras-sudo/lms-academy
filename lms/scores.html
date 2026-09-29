@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Scores | The Gifted Academy</title>
+<style>
+  :root {
+    --bg: #0a2150; --text: #fff; --muted: #b8c7ee; --accent: #f5c542;
+    --primary: #2b7fff; --primary-hover: #4a92ff;
+    --side-bg: rgba(6, 24, 66, 0.72); --line: rgba(130, 165, 255, 0.18);
+    --card-bg: linear-gradient(160deg, rgba(20, 70, 170, 0.35), rgba(10, 33, 80, 0.55));
+    --card-border: rgba(130, 165, 255, 0.28); --card-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+    --row-bg: rgba(6, 24, 66, 0.35); --chip: rgba(255, 255, 255, 0.07);
+    --icon: #c7d4f5; --stat-ico: #1a62e6; --track: rgba(255, 255, 255, 0.12);
+    --great: #14805f; --good: #1b5fd6; --fair: #b9852b;
+  }
+  [data-theme="light"] {
+    --bg: #f4f7ff; --text: #0c2452; --muted: #3d507e;
+    --side-bg: #fff; --line: #dbe3f5; --card-bg: #fff; --card-border: #dbe3f5;
+    --card-shadow: 0 16px 40px rgba(12, 36, 82, 0.1); --row-bg: #f7f9ff;
+    --chip: #e9eefb; --icon: #4b5f8f; --track: #dbe3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh; display: flex;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg); color: var(--text); transition: background-color .3s, color .3s;
+  }
+  .bg { position: fixed; inset: 0; z-index: 0; background: url("images/background.jpg") center top / cover no-repeat; transition: opacity .3s; }
+  [data-theme="light"] .bg { opacity: .12; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  svg { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Sidebar (same as other pages) */
+  .side {
+    position: fixed; inset: 0 auto 0 0; width: 290px; z-index: 5; padding: 24px 16px;
+    background: var(--side-bg); border-right: 1px solid var(--line); backdrop-filter: blur(8px);
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; padding: 0 8px 22px; }
+  .brand img { height: 34px; }
+  .group { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 14px 16px 8px; }
+  .side nav a {
+    display: flex; align-items: center; gap: 16px; height: 42px; padding: 0 16px; margin-bottom: 4px;
+    border-radius: 10px; font-size: 1rem; color: var(--text); transition: background .2s;
+  }
+  .side nav a svg { width: 22px; height: 22px; flex: none; }
+  .side nav a:hover { background: var(--chip); }
+  .side nav a.active { background: var(--primary); color: #fff; font-weight: 600; }
+  .side hr { border: 0; border-top: 1px solid var(--line); margin: 16px 16px 4px; }
+
+  /* Top bar (same as other pages) */
+  .wrap { position: relative; z-index: 1; margin-left: 290px; flex: 1; min-width: 0; padding: 0 40px 48px; }
+  .top { height: 76px; display: flex; align-items: center; justify-content: flex-end; gap: 22px; }
+  .icon-btn { position: relative; background: none; border: 0; cursor: pointer; color: var(--icon); display: grid; place-items: center; }
+  .icon-btn svg { width: 24px; height: 24px; }
+  .badge { position: absolute; top: -6px; right: -7px; min-width: 16px; height: 16px; border-radius: 8px; background: #e5484d; color: #fff; font-size: .68rem; font-weight: 700; display: grid; place-items: center; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 700; display: grid; place-items: center; }
+  .theme-toggle { display: flex; align-items: center; gap: 6px; background: none; border: 0; cursor: pointer; color: var(--muted); }
+  .theme-toggle .track { width: 32px; height: 20px; border-radius: 999px; background: rgba(255,255,255,.35); position: relative; transition: background .3s; }
+  .theme-toggle .thumb { position: absolute; top: 3px; left: 4px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .25s; }
+  [data-theme="light"] .theme-toggle .track { background: rgba(12,36,82,.3); }
+  [data-theme="light"] .theme-toggle .thumb { transform: translateX(10px); }
+
+  /* Greeting (same as dashboard) */
+  .hello { color: var(--primary-hover); font-size: .95rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; margin-top: 8px; }
+  h1 { font-size: 2.6rem; font-weight: 800; line-height: 1.2; }
+  .tagline { color: var(--muted); margin: 6px 0 22px; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; }
+  .layout > * { min-width: 0; }
+  .panel { border-radius: 16px; border: 1px solid var(--card-border); background: var(--card-bg); box-shadow: var(--card-shadow); }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .stat { display: flex; align-items: center; gap: 12px; padding: 16px; min-width: 0; }
+  .stat .ico { width: 48px; height: 48px; border-radius: 50%; background: var(--stat-ico); color: #fff; display: grid; place-items: center; flex: none; }
+  .stat .ico svg { width: 22px; height: 22px; }
+  .stat > div:last-child { min-width: 0; }
+  .stat span { font-size: .9rem; }
+  .stat b { display: block; font-size: 1.7rem; line-height: 1.15; margin: 2px 0; }
+  .stat small { display: block; color: var(--muted); font-size: .76rem; }
+
+  /* Results list */
+  .results { margin-top: 22px; padding: 24px 26px; }
+  .sec-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .sec-head h2 { font-size: 1.35rem; display: flex; align-items: center; gap: 12px; }
+  .sec-head h2 svg { width: 26px; height: 26px; color: var(--icon); }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab { border: 0; cursor: pointer; padding: 8px 16px; border-radius: 999px; background: var(--chip); color: var(--muted); font-size: .88rem; transition: background .2s; }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] { background: var(--primary); color: #fff; font-weight: 600; }
+  .row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 96px 20px; align-items: center; gap: 18px; padding: 16px 18px; margin-top: 12px; border-radius: 14px; background: var(--row-bg); border: 1px solid var(--line); transition: border-color .2s; }
+  .row:hover { border-color: var(--card-border); }
+  .r-main { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .tile { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; color: #fff; flex: none; }
+  .tile svg { width: 27px; height: 27px; }
+  .r-main div { min-width: 0; }
+  .r-main small { color: var(--muted); font-size: .8rem; display: block; }
+  .r-main strong { display: block; font-size: 1.02rem; font-weight: 600; margin: 2px 0; }
+  .r-main .date { display: flex; align-items: center; gap: 6px; }
+  .r-main .date svg { width: 14px; height: 14px; }
+  .r-score b { font-size: 1.05rem; }
+  .r-score small { color: var(--muted); font-size: .8rem; margin-left: 6px; }
+  .bar { height: 8px; border-radius: 999px; background: var(--track); margin-top: 8px; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: inherit; }
+  .pill { justify-self: start; padding: 3px 14px; border-radius: 999px; font-size: .78rem; font-weight: 600; color: #fff; }
+  .pill.great { background: var(--great); } .pill.good { background: var(--good); } .pill.fair { background: var(--fair); }
+  .chev { width: 18px; height: 18px; color: var(--icon); }
+  .empty { text-align: center; color: var(--muted); padding: 40px 0; font-size: .92rem; }
+
+  /* Right column */
+  .side-col { display: grid; gap: 22px; }
+  .subjects { padding: 22px 24px; }
+  .sub { margin-top: 18px; }
+  .sub-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: .95rem; }
+  .sub-top span { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+  .sub .bar { height: 10px; }
+  .sub small { display: block; color: var(--muted); font-size: .78rem; margin-top: 6px; }
+  .notice { padding: 24px; display: flex; gap: 18px; }
+  .notice .ico { width: 62px; height: 62px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; flex: none; }
+  .notice .ico svg { width: 28px; height: 28px; }
+  .notice strong { display: block; font-size: 1.02rem; }
+  .notice p { color: var(--muted); font-size: .92rem; line-height: 1.6; margin: 6px 0 16px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 22px; border-radius: 999px; background: var(--primary); color: #fff; font-weight: 600; transition: background .2s; }
+  .btn:hover { background: var(--primary-hover); }
+  .btn svg { width: 18px; height: 18px; }
+
+  /* Responsive */
+  @media (max-width: 1560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 1250px) { .layout { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (max-width: 1100px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 860px) {
+    .side { position: static; width: 100%; height: auto; }
+    body { flex-direction: column; } .wrap { margin-left: 0; padding: 0 20px 40px; }
+    .side nav { display: flex; flex-wrap: wrap; } .group, .side hr { display: none; }
+  }
+  @media (max-width: 700px) {
+    .stats { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr; } .row .chev { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+
+<aside class="side">
+  <a class="brand" href="dashboard.html"><img src="images/logo.png" alt=""><span>The Gifted Academy</span></a>
+  <nav id="nav" aria-label="Main"></nav>
+</aside>
+
+<div class="wrap">
+  <div class="top">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark and light theme">
+      <span aria-hidden="true">&#9790;</span><span class="track"><span class="thumb"></span></span>
+    </button>
+    <button class="icon-btn" type="button" aria-label="Notifications (3 unread)"><span data-i="bell"></span><span class="badge">3</span></button>
+    <button class="icon-btn" type="button" aria-label="Messages"><span data-i="chat"></span></button>
+    <div class="avatar" aria-label="Signed in as J">J</div>
+  </div>
+
+  <main>
+    <p class="hello" id="greet">Good morning,</p>
+    <h1>Welcome back!</h1>
+    <p class="tagline">Keep learning, keep growing.</p>
+
+    <div class="layout">
+      <div>
+        <section class="stats" id="stats" aria-label="Score summary"></section>
+
+        <section class="panel results">
+          <div class="sec-head"><h2><span data-i="chart"></span>My Scores</h2><div class="tabs" id="tabs" role="tablist"></div></div>
+          <div id="list" role="list"></div>
+        </section>
+      </div>
+
+      <div class="side-col">
+        <section class="panel subjects">
+          <div class="sec-head" style="margin-bottom:0"><h2><span data-i="cap"></span>By Subject</h2></div>
+          <div id="subjects"></div>
+        </section>
+        <section class="panel notice">
+          <div class="ico" data-i="star"></div>
+          <div>
+            <strong>Keep it up!</strong>
+            <p>Check your assessments to see what's coming next.</p>
+            <a class="btn" href="assessments.html">View Assessments <span data-i="arrow"></span></a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ---- Theme (shared) ----
+const root = document.documentElement;
+try { const s = localStorage.getItem("theme"); if (s) root.setAttribute("data-theme", s); } catch (e) {}
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+  root.setAttribute("data-theme", next);
+  try { localStorage.setItem("theme", next); } catch (e) {}
+});
+
+// ---- Icons ----
+const P = {
+  home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+  cap: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/>',
+  doc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+  chart: '<rect x="4" y="11" width="4" height="9"/><rect x="10" y="4" width="4" height="16"/><rect x="16" y="8" width="4" height="12"/>',
+  folder: '<path d="M3 6h7l2 2h9v11H3z"/>',
+  horn: '<path d="M3 10v4h4l9 5V5L7 10z"/><path d="M19 9a4 4 0 0 1 0 6"/>',
+  bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8"/>',
+  chev: '<path d="M9 5l7 7-7 7"/>', arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  task: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4v2a3 3 0 0 0 4 3M16 6h4v2a3 3 0 0 1-4 3M12 13v4M8 20h8"/>',
+  abacus: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8.5h18M3 12h18M3 15.5h18"/><circle cx="8" cy="8.5" r="1.3"/><circle cx="11" cy="8.5" r="1.3"/><circle cx="14" cy="12" r="1.3"/><circle cx="16.5" cy="12" r="1.3"/><circle cx="7" cy="15.5" r="1.3"/>',
+  dumbbell: '<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>',
+  users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2A5 5 0 0 1 21 19"/>',
+  palette: '<path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 1.6-2.1-.5-1.3.2-2.4 1.6-2.4H17a4 4 0 0 0 4-4c0-5-4-9-9-9.5z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="15" cy="7.5" r="1"/>'
+};
+const icon = n => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+document.querySelectorAll("[data-i]").forEach(el => el.innerHTML = icon(el.dataset.i));
+
+// ---- Sidebar (same as other pages) ----
+const NAV = [
+  ["STUDENT"],
+  ["dashboard.html", "home", "Dashboard"], ["calendar.html", "cal", "Calendar"],
+  ["subjects.html", "cap", "Enrolled Subjects"], ["assessments.html", "doc", "Assessments"],
+  ["scores.html", "chart", "My Scores", true], ["hr"],
+  ["RESOURCES"], ["materials.html", "folder", "Materials"], ["announcements.html", "horn", "Announcements"]
+];
+document.getElementById("nav").innerHTML = NAV.map(n =>
+  n[0] === "hr" ? "<hr>" :
+  n.length === 1 ? `<p class="group">${n[0]}</p>` :
+  `<a href="${n[0]}"${n[3] ? ' class="active" aria-current="page"' : ""}>${icon(n[1])}${n[2]}</a>`).join("");
+
+// ---- Data: replace with fetch() to your PHP endpoints ----
+const SUBJECTS = {
+  "Basic Numeracy": { icon: "abacus", grad: "linear-gradient(135deg,#2b9bff,#1a62e6)", color: "#2b9bff" },
+  "Physical Education": { icon: "dumbbell", grad: "linear-gradient(135deg,#2fd3a5,#10a37f)", color: "#2fd3a5" },
+  "Social Skills": { icon: "users", grad: "linear-gradient(135deg,#a56bff,#6a3de8)", color: "#a56bff" },
+  "Arts and Crafts": { icon: "palette", grad: "linear-gradient(135deg,#ffb63d,#f28a1a)", color: "#ffb63d" }
+};
+const SCORES = [
+  { id: 1, subject: "Basic Numeracy", title: "Counting and Number Recognition", type: "Quiz", date: "2026-09-28", score: 9, total: 10 },
+  { id: 2, subject: "Social Skills", title: "Greetings and Taking Turns", type: "Activity", date: "2026-09-25", score: 18, total: 20 },
+  { id: 3, subject: "Physical Education", title: "Obstacle Course Activity", type: "Activity", date: "2026-09-24", score: 19, total: 20 },
+  { id: 4, subject: "Arts and Crafts", title: "Paper Weaving Activity", type: "Activity", date: "2026-09-22", score: 47, total: 50 },
+  { id: 5, subject: "Basic Numeracy", title: "Number Patterns Quiz", type: "Quiz", date: "2026-09-18", score: 10, total: 10 },
+  { id: 6, subject: "Physical Education", title: "Team Games Participation", type: "Activity", date: "2026-09-15", score: 17, total: 20 },
+  { id: 7, subject: "Social Skills", title: "Sharing and Empathy", type: "Quiz", date: "2026-09-12", score: 9, total: 10 },
+  { id: 8, subject: "Arts and Crafts", title: "Color Mixing Project", type: "Activity", date: "2026-09-10", score: 44, total: 50 }
+];
+
+// ---- Helpers ----
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = s => Math.round(s.score / s.total * 100);
+const grade = p => p >= 90 ? ["great", "Excellent"] : p >= 80 ? ["good", "Good"] : ["fair", "Keep going"];
+const fmtDate = iso => new Date(iso + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const avg = list => list.length ? Math.round(list.reduce((a, s) => a + s.score / s.total * 100, 0) / list.length) : 0;
+$("greet").textContent = (h => h < 12 ? "Good morning," : h < 18 ? "Good afternoon," : "Good evening,")(new Date().getHours());
+
+// ---- Stats ----
+const latest = [...SCORES].sort((a, b) => b.date.localeCompare(a.date))[0];
+$("stats").innerHTML = [
+  ["star", "Average Grade", avg(SCORES) + "%", "Overall performance"],
+  ["trophy", "Highest Score", Math.max(...SCORES.map(pct)) + "%", "Personal best"],
+  ["task", "Graded", SCORES.length, "Quizzes and activities"],
+  ["clock", "Latest Score", pct(latest) + "%", fmtDate(latest.date)]
+].map(([ic, name, val, sub]) =>
+  `<div class="panel stat"><div class="ico">${icon(ic)}</div><div><span>${name}</span><b>${val}</b><small>${sub}</small></div></div>`).join("");
+
+// ---- By subject ----
+$("subjects").innerHTML = Object.entries(SUBJECTS).map(([name, s]) => {
+  const list = SCORES.filter(x => x.subject === name), a = avg(list);
+  return `<div class="sub"><div class="sub-top"><span><i class="dot" style="background:${s.grad}"></i>${esc(name)}</span><b>${a}%</b></div>
+    <div class="bar"><i style="width:${a}%;background:${s.grad}"></i></div><small>${list.length} graded</small></div>`;
+}).join("");
+
+// ---- Results list ----
+const state = { tab: "all" };
+function renderTabs() {
+  $("tabs").innerHTML = ["all", ...Object.keys(SUBJECTS)].map(t =>
+    `<button class="tab" type="button" role="tab" data-tab="${esc(t)}" aria-selected="${state.tab === t}">${t === "all" ? "All" : esc(t)}</button>`).join("");
+}
+function renderList() {
+  const rows = SCORES.filter(s => state.tab === "all" || s.subject === state.tab).sort((a, b) => b.date.localeCompare(a.date));
+  $("list").innerHTML = rows.length ? rows.map(s => {
+    const p = pct(s), [cls, label] = grade(p), sub = SUBJECTS[s.subject];
+    return `<a class="row" role="listitem" href="result.html?id=${s.id}">
+      <div class="r-main"><div class="tile" style="background:${sub.grad}">${icon(sub.icon)}</div>
+        <div><small>${esc(s.subject)} &bull; ${esc(s.type)}</small><strong>${esc(s.title)}</strong><span class="date">${icon("cal")}<small>${fmtDate(s.date)}</small></span></div></div>
+      <div class="r-score"><b>${p}%</b><small>${s.score} / ${s.total} points</small><div class="bar"><i style="width:${p}%;background:${sub.grad}"></i></div></div>
+      <span class="pill ${cls}">${label}</span>
+      <span class="chev">${icon("chev")}</span></a>`;
+  }).join("") : `<p class="empty">No scores yet. Finish an assessment to see your results here.</p>`;
+}
+$("tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (!b) return; state.tab = b.dataset.tab; renderTabs(); renderList(); });
+renderTabs(); renderList();
+</script>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enrolled Subjects | The Gifted Academy</title>
+<style>
+  :root {
+    --bg: #0a2150; --text: #fff; --muted: #b8c7ee; --accent: #f5c542;
+    --primary: #2b7fff; --primary-hover: #4a92ff;
+    --side-bg: rgba(6, 24, 66, 0.72); --line: rgba(130, 165, 255, 0.18);
+    --card-bg: linear-gradient(160deg, rgba(20, 70, 170, 0.35), rgba(10, 33, 80, 0.55));
+    --card-border: rgba(130, 165, 255, 0.28); --card-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+    --row-bg: rgba(6, 24, 66, 0.35); --chip: rgba(255, 255, 255, 0.07);
+    --icon: #c7d4f5; --tag-bg: rgba(43, 127, 255, 0.28); --btn-bg: rgba(43, 127, 255, 0.35);
+    --field-bg: rgba(6, 24, 66, 0.55);
+  }
+  [data-theme="light"] {
+    --bg: #f4f7ff; --text: #0c2452; --muted: #3d507e;
+    --side-bg: #fff; --line: #dbe3f5; --card-bg: #fff; --card-border: #dbe3f5;
+    --card-shadow: 0 16px 40px rgba(12, 36, 82, 0.1); --row-bg: #f7f9ff;
+    --chip: #e9eefb; --icon: #4b5f8f; --tag-bg: #dce9ff; --btn-bg: #dce9ff;
+    --field-bg: #fff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh; display: flex;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg); color: var(--text); transition: background-color .3s, color .3s;
+  }
+  .bg { position: fixed; inset: 0; z-index: 0; background: url("images/background.jpg") center top / cover no-repeat; transition: opacity .3s; }
+  [data-theme="light"] .bg { opacity: .12; }
+  a { color: inherit; text-decoration: none; }
+  button, input, select { font: inherit; color: inherit; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  svg { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Sidebar (same as calendar) */
+  .side {
+    position: fixed; inset: 0 auto 0 0; width: 290px; z-index: 5; padding: 24px 16px;
+    background: var(--side-bg); border-right: 1px solid var(--line); backdrop-filter: blur(8px);
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; padding: 0 8px 22px; }
+  .brand img { height: 34px; }
+  .group { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 14px 16px 8px; }
+  .side nav a {
+    display: flex; align-items: center; gap: 16px; height: 42px; padding: 0 16px; margin-bottom: 4px;
+    border-radius: 10px; font-size: 1rem; color: var(--text); transition: background .2s;
+  }
+  .side nav a svg { width: 22px; height: 22px; flex: none; }
+  .side nav a:hover { background: var(--chip); }
+  .side nav a.active { background: var(--primary); color: #fff; font-weight: 600; }
+  .side hr { border: 0; border-top: 1px solid var(--line); margin: 16px 16px 4px; }
+
+  /* Top bar (same as calendar) */
+  .wrap { position: relative; z-index: 1; margin-left: 290px; flex: 1; min-width: 0; padding: 0 40px 32px; }
+  .top { height: 76px; display: flex; align-items: center; justify-content: flex-end; gap: 22px; }
+  .icon-btn { position: relative; background: none; border: 0; cursor: pointer; color: var(--icon); display: grid; place-items: center; }
+  .icon-btn svg { width: 24px; height: 24px; }
+  .badge { position: absolute; top: -6px; right: -7px; min-width: 16px; height: 16px; border-radius: 8px; background: #e5484d; color: #fff; font-size: .68rem; font-weight: 700; display: grid; place-items: center; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 700; display: grid; place-items: center; }
+  .theme-toggle { display: flex; align-items: center; gap: 6px; background: none; border: 0; cursor: pointer; color: var(--muted); }
+  .theme-toggle .track { width: 32px; height: 20px; border-radius: 999px; background: rgba(255,255,255,.35); position: relative; transition: background .3s; }
+  .theme-toggle .thumb { position: absolute; top: 3px; left: 4px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .25s; }
+  [data-theme="light"] .theme-toggle .track { background: rgba(12,36,82,.3); }
+  [data-theme="light"] .theme-toggle .thumb { transform: translateX(10px); }
+
+  /* Page header */
+  .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 22px; }
+  .eyebrow { color: var(--primary-hover); font-size: .95rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; margin-top: 8px; }
+  h1 { font-size: 2.6rem; font-weight: 800; line-height: 1.2; }
+  .tagline { color: var(--muted); margin: 6px 0 0; }
+
+  .tools { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .field { position: relative; display: flex; align-items: center; height: 52px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--field-bg); }
+  .field svg { width: 20px; height: 20px; color: var(--icon); flex: none; pointer-events: none; }
+  .field.search { width: 320px; max-width: 100%; padding: 0 16px; gap: 12px; }
+  .field.search input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; }
+  .field.search input::placeholder { color: var(--muted); }
+  .field.search:focus-within, .field.sel:focus-within { border-color: var(--primary-hover); }
+  .field.sel { padding: 0 16px; gap: 12px; }
+  .field.sel select { appearance: none; -webkit-appearance: none; background: none; border: 0; outline: 0; cursor: pointer; padding-right: 26px; height: 100%; }
+  .field.sel select option { color: #0c2452; }
+  .field.sel .caret { position: absolute; right: 14px; }
+  .toggle { display: flex; gap: 4px; padding: 5px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--field-bg); }
+  .toggle button { width: 42px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--icon); cursor: pointer; display: grid; place-items: center; }
+  .toggle button svg { width: 20px; height: 20px; }
+  .toggle button[aria-pressed="true"] { background: var(--primary); color: #fff; }
+
+  /* Subject cards */
+  .list { display: grid; gap: 22px; }
+  .list > * { min-width: 0; }
+  .card {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto; align-items: center; gap: 28px;
+    padding: 28px 32px; border-radius: 22px; border: 1px solid var(--card-border);
+    background: var(--card-bg); box-shadow: var(--card-shadow); transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: var(--primary-hover); transform: translateY(-2px); }
+  .c-main { display: flex; align-items: center; gap: 22px; min-width: 0; }
+  .tile { width: 88px; height: 88px; border-radius: 22px; display: grid; place-items: center; color: #fff; flex: none; box-shadow: 0 10px 24px rgba(0, 0, 0, .25); }
+  .tile svg { width: 42px; height: 42px; }
+  .c-main h2 { font-size: 1.4rem; font-weight: 700; line-height: 1.25; }
+  .teacher { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .95rem; margin: 6px 0 12px; }
+  .teacher svg { width: 17px; height: 17px; }
+  .tag { display: inline-block; padding: 5px 16px; border-radius: 999px; background: var(--tag-bg); font-size: .85rem; font-weight: 600; }
+  .c-info { border-left: 1px solid var(--line); padding-left: 32px; display: grid; gap: 16px; font-size: .95rem; }
+  .c-info > div { display: grid; grid-template-columns: 26px 1fr; gap: 16px; align-items: start; line-height: 1.5; }
+  .c-info svg { width: 24px; height: 24px; color: var(--icon); margin-top: 2px; }
+  .c-info b { display: block; font-weight: 600; }
+  .c-info span { color: var(--muted); display: block; }
+  .btn { display: inline-flex; align-items: center; gap: 12px; height: 52px; padding: 0 28px; border-radius: 999px; background: var(--btn-bg); border: 1px solid var(--card-border); font-weight: 600; white-space: nowrap; transition: background .2s; }
+  .btn:hover { background: var(--primary); color: #fff; }
+  .btn svg { width: 18px; height: 18px; }
+
+  /* Grid view (card grid) */
+  .list.grid-view { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
+  .grid-view .card { grid-template-columns: 1fr; gap: 20px; }
+  .grid-view .c-info { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 20px; }
+  .grid-view .btn { justify-self: start; }
+
+  .none { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 56px 12px; border-radius: 22px; border: 1px dashed var(--card-border); }
+
+  .foot { color: var(--muted); font-size: .95rem; padding: 32px 8px 0; }
+
+  @media (max-width: 1250px) {
+    .card { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+    .card .btn { grid-column: 1 / -1; justify-self: start; }
+  }
+  @media (max-width: 860px) {
+    .side { position: static; width: 100%; height: auto; }
+    body { flex-direction: column; } .wrap { margin-left: 0; padding: 0 20px 32px; }
+    .side nav { display: flex; flex-wrap: wrap; } .group, .side hr { display: none; }
+  }
+  @media (max-width: 760px) {
+    h1 { font-size: 2rem; }
+    .field.search { width: 100%; } .tools { width: 100%; }
+    .card { grid-template-columns: 1fr; padding: 22px; gap: 20px; }
+    .c-info { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 20px; }
+    .list.grid-view { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+
+<aside class="side">
+  <a class="brand" href="dashboard.html"><img src="images/logo.png" alt=""><span>The Gifted Academy</span></a>
+  <nav id="nav" aria-label="Main"></nav>
+</aside>
+
+<div class="wrap">
+  <div class="top">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark and light theme">
+      <span aria-hidden="true">&#9790;</span><span class="track"><span class="thumb"></span></span>
+    </button>
+    <button class="icon-btn" type="button" aria-label="Notifications (3 unread)"><span data-i="bell"></span><span class="badge">3</span></button>
+    <button class="icon-btn" type="button" aria-label="Messages"><span data-i="chat"></span></button>
+    <div class="avatar" aria-label="Signed in as J">J</div>
+  </div>
+
+  <main>
+    <div class="head">
+      <div>
+        <p class="eyebrow">Your learning journey</p>
+        <h1>Enrolled Subjects</h1>
+        <p class="tagline">Access your enrolled subjects, view schedules, and keep track of your learning progress.</p>
+      </div>
+      <div class="tools">
+        <label class="field search"><span data-i="search"></span>
+          <input id="q" type="search" placeholder="Search subjects..." aria-label="Search subjects" autocomplete="off">
+        </label>
+        <label class="field sel"><span data-i="filter"></span>
+          <select id="sem" aria-label="Filter by semester">
+            <option value="">All Semesters</option>
+            <option>1st Semester</option>
+            <option>2nd Semester</option>
+          </select>
+          <span class="caret" data-i="down"></span>
+        </label>
+        <div class="toggle" role="group" aria-label="Layout">
+          <button type="button" data-layout="grid" aria-pressed="false" aria-label="Grid view"><span data-i="grid"></span></button>
+          <button type="button" data-layout="list" aria-pressed="true" aria-label="List view"><span data-i="list"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <section class="list" id="subjects" aria-live="polite"></section>
+  </main>
+</div>
+
+<script>
+// ---- Theme (shared) ----
+const root = document.documentElement;
+try { const s = localStorage.getItem("theme"); if (s) root.setAttribute("data-theme", s); } catch (e) {}
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+  root.setAttribute("data-theme", next);
+  try { localStorage.setItem("theme", next); } catch (e) {}
+});
+
+// ---- Icons ----
+const P = {
+  home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+  book: '<path d="M2 5c3-1 7-1 10 1 3-2 7-2 10-1v14c-3-1-7-1-10 1-3-2-7-2-10-1z"/><path d="M12 6v14"/>',
+  cap: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/>',
+  doc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+  chart: '<rect x="4" y="11" width="4" height="9"/><rect x="10" y="4" width="4" height="16"/><rect x="16" y="8" width="4" height="12"/>',
+  folder: '<path d="M3 6h7l2 2h9v11H3z"/>',
+  horn: '<path d="M3 10v4h4l9 5V5L7 10z"/><path d="M19 9a4 4 0 0 1 0 6"/>',
+  bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8"/>',
+  chev: '<path d="M9 5l7 7-7 7"/>', down: '<path d="M6 9l6 6 6-6"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  filter: '<path d="M3 5h18l-7 8v6l-4-2v-4z"/>',
+  grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>',
+  abacus: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8.5h18M3 12h18M3 15.5h18"/><circle cx="8" cy="8.5" r="1.3"/><circle cx="11" cy="8.5" r="1.3"/><circle cx="14" cy="12" r="1.3"/><circle cx="16.5" cy="12" r="1.3"/><circle cx="7" cy="15.5" r="1.3"/>',
+  dumbbell: '<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>',
+  users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2A5 5 0 0 1 21 19"/>',
+  palette: '<path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 1.6-2.1-.5-1.3.2-2.4 1.6-2.4H17a4 4 0 0 0 4-4c0-5-4-9-9-9.5z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="15" cy="7.5" r="1"/>'
+};
+const icon = n => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+document.querySelectorAll("[data-i]").forEach(el => el.innerHTML = icon(el.dataset.i));
+
+// ---- Sidebar (same as calendar) ----
+const NAV = [
+  ["STUDENT"],
+  ["dashboard.html", "home", "Dashboard"], ["calendar.html", "cal", "Calendar"],
+  ["subjects.html", "cap", "Enrolled Subjects", true], ["assessments.html", "doc", "Assessments"],
+  ["scores.html", "chart", "My Scores"], ["hr"],
+  ["RESOURCES"], ["materials.html", "folder", "Materials"], ["announcements.html", "horn", "Announcements"]
+];
+document.getElementById("nav").innerHTML = NAV.map(n =>
+  n[0] === "hr" ? "<hr>" :
+  n.length === 1 ? `<p class="group">${n[0]}</p>` :
+  `<a href="${n[0]}"${n[3] ? ' class="active" aria-current="page"' : ""}>${icon(n[1])}${n[2]}</a>`).join("");
+
+// ---- Data: replace with fetch() to your PHP endpoints ----
+const SUBJECTS = [
+  { id: 1, name: "Basic Numeracy", teacher: "Ms. Carla Santos", section: "INTG2", semester: "1st Semester",
+    schedule: "Mon & Wed \u2022 9:00 AM \u2013 10:00 AM", next: "Counting and Number Recognition", nextAt: "2026-10-05T09:00",
+    icon: "abacus", grad: "linear-gradient(135deg,#2b9bff,#1a62e6)" },
+  { id: 2, name: "Physical Education", teacher: "Mr. Luis Reyes", section: "INTG2", semester: "1st Semester",
+    schedule: "Tue & Thu \u2022 10:30 AM \u2013 11:30 AM", next: "Obstacle Course Activity", nextAt: "2026-10-01T10:30",
+    icon: "dumbbell", grad: "linear-gradient(135deg,#2fd3a5,#10a37f)" },
+  { id: 3, name: "Social Skills", teacher: "Ms. Dana Cruz", section: "INTG2", semester: "1st Semester",
+    schedule: "Mon & Fri \u2022 1:00 PM \u2013 2:00 PM", next: "Greetings and Taking Turns", nextAt: "2026-10-02T13:00",
+    icon: "users", grad: "linear-gradient(135deg,#a56bff,#6a3de8)" },
+  { id: 4, name: "Arts and Crafts", teacher: "Ms. Angela Ramos", section: "INTG2", semester: "1st Semester",
+    schedule: "Wed & Fri \u2022 2:30 PM \u2013 3:30 PM", next: "Paper Weaving Activity", nextAt: "2026-10-07T14:30",
+    icon: "palette", grad: "linear-gradient(135deg,#ffb63d,#f28a1a)" }
+];
+
+// ---- Helpers ----
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmtNext = iso => {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " \u2022 " +
+         d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+};
+
+const state = { q: "", sem: "", layout: "list" };
+try { const l = localStorage.getItem("subjectsLayout"); if (l === "grid" || l === "list") state.layout = l; } catch (e) {}
+
+function render() {
+  const q = state.q.trim().toLowerCase();
+  const list = SUBJECTS.filter(s =>
+    (!state.sem || s.semester === state.sem) &&
+    (!q || [s.name, s.teacher, s.section].some(v => v.toLowerCase().includes(q))));
+
+  $("subjects").className = "list" + (state.layout === "grid" ? " grid-view" : "");
+  document.querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-pressed", b.dataset.layout === state.layout));
+
+  $("subjects").innerHTML = list.length ? list.map(s => `
+    <article class="card">
+      <div class="c-main">
+        <div class="tile" style="background:${s.grad}">${icon(s.icon)}</div>
+        <div>
+          <h2>${esc(s.name)}</h2>
+          <p class="teacher">${icon("user")}${esc(s.teacher)}</p>
+          <span class="tag">${esc(s.section)}</span>
+        </div>
+      </div>
+      <div class="c-info">
+        <div>${icon("cal")}<div><b>Schedule</b><span>${esc(s.schedule)}</span></div></div>
+        <div>${icon("book")}<div><b>Next Activity</b><span>${esc(s.next)}</span><span>${fmtNext(s.nextAt)}</span></div></div>
+      </div>
+      <a class="btn" href="subject-details.html?id=${s.id}">View Details ${icon("chev")}</a>
+    </article>`).join("") : `<p class="none">No subjects found.</p>`;
+}
+
+$("q").addEventListener("input", e => { state.q = e.target.value; render(); });
+$("sem").addEventListener("change", e => { state.sem = e.target.value; render(); });
+document.querySelectorAll("[data-layout]").forEach(b => b.addEventListener("click", () => {
+  state.layout = b.dataset.layout;
+  try { localStorage.setItem("subjectsLayout", state.layout); } catch (e) {}
+  render();
+}));
+
+render();
+</script>
+</body>
+</html>

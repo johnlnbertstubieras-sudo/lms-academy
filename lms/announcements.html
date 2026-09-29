@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Announcements | The Gifted Academy</title>
+<style>
+  :root {
+    --bg: #0a2150; --text: #fff; --muted: #b8c7ee; --accent: #f5c542;
+    --primary: #2b7fff; --primary-hover: #4a92ff;
+    --side-bg: rgba(6, 24, 66, 0.72); --line: rgba(130, 165, 255, 0.18);
+    --card-bg: linear-gradient(160deg, rgba(20, 70, 170, 0.35), rgba(10, 33, 80, 0.55));
+    --card-border: rgba(130, 165, 255, 0.28); --card-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+    --row-bg: rgba(6, 24, 66, 0.35); --chip: rgba(255, 255, 255, 0.07);
+    --icon: #c7d4f5; --stat-ico: #1a62e6; --field-bg: rgba(6, 24, 66, 0.55); --placeholder: #8fa4d8;
+  }
+  [data-theme="light"] {
+    --bg: #f4f7ff; --text: #0c2452; --muted: #3d507e;
+    --side-bg: #fff; --line: #dbe3f5; --card-bg: #fff; --card-border: #dbe3f5;
+    --card-shadow: 0 16px 40px rgba(12, 36, 82, 0.1); --row-bg: #f7f9ff;
+    --chip: #e9eefb; --icon: #4b5f8f; --field-bg: #fff; --placeholder: #7a89ad;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh; display: flex;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg); color: var(--text); transition: background-color .3s, color .3s;
+  }
+  .bg { position: fixed; inset: 0; z-index: 0; background: url("images/background.jpg") center top / cover no-repeat; transition: opacity .3s; }
+  [data-theme="light"] .bg { opacity: .12; }
+  a { color: inherit; text-decoration: none; }
+  button, input { font: inherit; color: inherit; }
+  a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  svg { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Sidebar (same as other pages) */
+  .side {
+    position: fixed; inset: 0 auto 0 0; width: 290px; z-index: 5; padding: 24px 16px;
+    background: var(--side-bg); border-right: 1px solid var(--line); backdrop-filter: blur(8px);
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; padding: 0 8px 22px; }
+  .brand img { height: 34px; }
+  .group { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 14px 16px 8px; }
+  .side nav a {
+    display: flex; align-items: center; gap: 16px; height: 42px; padding: 0 16px; margin-bottom: 4px;
+    border-radius: 10px; font-size: 1rem; color: var(--text); transition: background .2s;
+  }
+  .side nav a svg { width: 22px; height: 22px; flex: none; }
+  .side nav a:hover { background: var(--chip); }
+  .side nav a.active { background: var(--primary); color: #fff; font-weight: 600; }
+  .side hr { border: 0; border-top: 1px solid var(--line); margin: 16px 16px 4px; }
+
+  /* Top bar (same as other pages) */
+  .wrap { position: relative; z-index: 1; margin-left: 290px; flex: 1; min-width: 0; padding: 0 40px 48px; }
+  .top { height: 76px; display: flex; align-items: center; justify-content: flex-end; gap: 22px; }
+  .icon-btn { position: relative; background: none; border: 0; cursor: pointer; color: var(--icon); display: grid; place-items: center; }
+  .icon-btn svg { width: 24px; height: 24px; }
+  .badge { position: absolute; top: -6px; right: -7px; min-width: 16px; height: 16px; border-radius: 8px; background: #e5484d; color: #fff; font-size: .68rem; font-weight: 700; display: grid; place-items: center; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 700; display: grid; place-items: center; }
+  .theme-toggle { display: flex; align-items: center; gap: 6px; background: none; border: 0; cursor: pointer; color: var(--muted); }
+  .theme-toggle .track { width: 32px; height: 20px; border-radius: 999px; background: rgba(255,255,255,.35); position: relative; transition: background .3s; }
+  .theme-toggle .thumb { position: absolute; top: 3px; left: 4px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .25s; }
+  [data-theme="light"] .theme-toggle .track { background: rgba(12,36,82,.3); }
+  [data-theme="light"] .theme-toggle .thumb { transform: translateX(10px); }
+
+  /* Greeting (same as dashboard) */
+  .hello { color: var(--primary-hover); font-size: .95rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; margin-top: 8px; }
+  h1 { font-size: 2.6rem; font-weight: 800; line-height: 1.2; }
+  .tagline { color: var(--muted); margin: 6px 0 22px; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; }
+  .layout > * { min-width: 0; }
+  .panel { border-radius: 16px; border: 1px solid var(--card-border); background: var(--card-bg); box-shadow: var(--card-shadow); }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .stat { display: flex; align-items: center; gap: 12px; padding: 16px; min-width: 0; }
+  .stat .ico { width: 48px; height: 48px; border-radius: 50%; background: var(--stat-ico); color: #fff; display: grid; place-items: center; flex: none; }
+  .stat .ico svg { width: 22px; height: 22px; }
+  .stat > div:last-child { min-width: 0; }
+  .stat span { font-size: .9rem; }
+  .stat b { display: block; font-size: 1.7rem; line-height: 1.15; margin: 2px 0; }
+  .stat small { display: block; color: var(--muted); font-size: .76rem; }
+
+  /* Feed */
+  .feed { margin-top: 22px; padding: 24px 26px; }
+  .sec-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .sec-head h2 { font-size: 1.35rem; display: flex; align-items: center; gap: 12px; }
+  .sec-head h2 svg { width: 26px; height: 26px; color: var(--icon); }
+  .link-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; cursor: pointer; color: var(--primary-hover); font-size: .92rem; font-weight: 500; }
+  .link-btn svg { width: 16px; height: 16px; }
+  .link-btn:disabled { color: var(--muted); cursor: default; }
+  .field { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--card-border); background: var(--field-bg); margin-bottom: 14px; }
+  .field:focus-within { border-color: var(--primary-hover); }
+  .field svg { width: 19px; height: 19px; color: var(--icon); flex: none; }
+  .field input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; font-size: .92rem; }
+  .field input::placeholder { color: var(--placeholder); }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab { border: 0; cursor: pointer; padding: 8px 16px; border-radius: 999px; background: var(--chip); color: var(--muted); font-size: .88rem; transition: background .2s; }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] { background: var(--primary); color: #fff; font-weight: 600; }
+  .list { margin-top: 6px; }
+  .item { margin-top: 12px; border-radius: 14px; background: var(--row-bg); border: 1px solid var(--line); transition: border-color .2s; }
+  .item:hover, .item.open { border-color: var(--card-border); }
+  .head { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 20px; align-items: center; gap: 16px; padding: 16px 18px; background: none; border: 0; cursor: pointer; text-align: left; }
+  .i-main { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .tile { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; color: #fff; flex: none; }
+  .tile svg { width: 27px; height: 27px; }
+  .i-main > div { min-width: 0; }
+  .i-main strong { display: flex; align-items: center; gap: 8px; font-size: 1.02rem; font-weight: 600; line-height: 1.3; }
+  .unread { width: 9px; height: 9px; border-radius: 50%; background: var(--primary-hover); flex: none; }
+  .i-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 6px; color: var(--muted); font-size: .82rem; }
+  .pill { padding: 2px 12px; border-radius: 999px; font-size: .76rem; font-weight: 600; color: #fff; }
+  .chev { width: 18px; height: 18px; color: var(--icon); transition: transform .2s; }
+  .item.open .chev { transform: rotate(90deg); }
+  .body { display: none; padding: 0 18px 18px 90px; color: var(--muted); font-size: .94rem; line-height: 1.65; }
+  .item.open .body { display: block; }
+  .empty { text-align: center; color: var(--muted); padding: 40px 0; font-size: .92rem; }
+
+  /* Right column */
+  .side-col { display: grid; gap: 22px; }
+  .pinned { padding: 22px 24px 14px; }
+  .up-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .date { width: 58px; height: 62px; border-radius: 12px; background: #1a4fb8; color: #fff; display: grid; place-content: center; text-align: center; flex: none; }
+  [data-theme="light"] .date { background: #dce9ff; color: #0c2452; }
+  .date small { font-size: .82rem; }
+  .date b { font-size: 1.5rem; line-height: 1.1; }
+  .up-item div:nth-child(2) { flex: 1; min-width: 0; }
+  .up-item strong { display: block; font-weight: 600; }
+  .up-item span { display: block; color: var(--muted); font-size: .85rem; margin-top: 4px; }
+  .up-item .chev { transform: none; flex: none; }
+  .none { color: var(--muted); text-align: center; padding: 24px 0; font-size: .92rem; }
+  .notice { padding: 24px; display: flex; gap: 18px; }
+  .notice .ico { width: 62px; height: 62px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; flex: none; }
+  .notice .ico svg { width: 28px; height: 28px; }
+  .notice strong { display: block; font-size: 1.02rem; }
+  .notice p { color: var(--muted); font-size: .92rem; line-height: 1.6; margin: 6px 0 16px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 22px; border-radius: 999px; background: var(--primary); color: #fff; font-weight: 600; transition: background .2s; }
+  .btn:hover { background: var(--primary-hover); }
+  .btn svg { width: 18px; height: 18px; }
+
+  /* Responsive */
+  @media (max-width: 1560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 1250px) { .layout { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (max-width: 1100px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 860px) {
+    .side { position: static; width: 100%; height: auto; }
+    body { flex-direction: column; } .wrap { margin-left: 0; padding: 0 20px 40px; }
+    .side nav { display: flex; flex-wrap: wrap; } .group, .side hr { display: none; }
+  }
+  @media (max-width: 700px) { .stats { grid-template-columns: 1fr; } .body { padding-left: 18px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+
+<aside class="side">
+  <a class="brand" href="dashboard.html"><img src="images/logo.png" alt=""><span>The Gifted Academy</span></a>
+  <nav id="nav" aria-label="Main"></nav>
+</aside>
+
+<div class="wrap">
+  <div class="top">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark and light theme">
+      <span aria-hidden="true">&#9790;</span><span class="track"><span class="thumb"></span></span>
+    </button>
+    <button class="icon-btn" id="bellBtn" type="button" aria-label="Notifications (3 unread)"><span data-i="bell"></span><span class="badge" id="bellBadge">3</span></button>
+    <button class="icon-btn" type="button" aria-label="Messages"><span data-i="chat"></span></button>
+    <div class="avatar" aria-label="Signed in as J">J</div>
+  </div>
+
+  <main>
+    <p class="hello" id="greet">Good morning,</p>
+    <h1>Welcome back!</h1>
+    <p class="tagline">Keep learning, keep growing.</p>
+
+    <div class="layout">
+      <div>
+        <section class="stats" id="stats" aria-label="Announcements summary"></section>
+
+        <section class="panel feed">
+          <div class="sec-head">
+            <h2><span data-i="horn"></span>Announcements</h2>
+            <button class="link-btn" id="markAll" type="button"><span data-i="check"></span>Mark all as read</button>
+          </div>
+          <label class="field"><span data-i="search"></span><input id="q" type="search" placeholder="Search announcements..." aria-label="Search announcements" autocomplete="off"></label>
+          <div class="tabs" id="tabs" role="tablist" aria-label="Filter announcements"></div>
+          <div class="list" id="list"></div>
+        </section>
+      </div>
+
+      <div class="side-col">
+        <section class="panel pinned">
+          <div class="sec-head" style="margin-bottom:6px"><h2><span data-i="cal"></span>Upcoming Events</h2></div>
+          <div id="events"></div>
+        </section>
+        <section class="panel notice">
+          <div class="ico" data-i="cal"></div>
+          <div>
+            <strong>Plan Ahead</strong>
+            <p>See every class and activity on your calendar.</p>
+            <a class="btn" href="calendar.html">View Calendar <span data-i="arrow"></span></a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ---- Theme (shared) ----
+const root = document.documentElement;
+try { const s = localStorage.getItem("theme"); if (s) root.setAttribute("data-theme", s); } catch (e) {}
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+  root.setAttribute("data-theme", next);
+  try { localStorage.setItem("theme", next); } catch (e) {}
+});
+
+// ---- Icons ----
+const P = {
+  home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+  cap: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/>',
+  doc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+  chart: '<rect x="4" y="11" width="4" height="9"/><rect x="10" y="4" width="4" height="16"/><rect x="16" y="8" width="4" height="12"/>',
+  folder: '<path d="M3 6h7l2 2h9v11H3z"/>',
+  horn: '<path d="M3 10v4h4l9 5V5L7 10z"/><path d="M19 9a4 4 0 0 1 0 6"/>',
+  bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8"/>',
+  chev: '<path d="M9 5l7 7-7 7"/>', arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  check: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+  alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>'
+};
+const icon = n => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+document.querySelectorAll("[data-i]").forEach(el => el.innerHTML = icon(el.dataset.i));
+
+// ---- Sidebar (same as other pages) ----
+const NAV = [
+  ["STUDENT"],
+  ["dashboard.html", "home", "Dashboard"], ["calendar.html", "cal", "Calendar"],
+  ["subjects.html", "cap", "Enrolled Subjects"], ["assessments.html", "doc", "Assessments"],
+  ["scores.html", "chart", "My Scores"], ["hr"],
+  ["RESOURCES"], ["materials.html", "folder", "Materials"], ["announcements.html", "horn", "Announcements", true]
+];
+document.getElementById("nav").innerHTML = NAV.map(n =>
+  n[0] === "hr" ? "<hr>" :
+  n.length === 1 ? `<p class="group">${n[0]}</p>` :
+  `<a href="${n[0]}"${n[3] ? ' class="active" aria-current="page"' : ""}>${icon(n[1])}${n[2]}</a>`).join("");
+
+// ---- Data: replace with fetch() to your PHP endpoints ----
+const CAT = {
+  Important: { icon: "alert", grad: "linear-gradient(135deg,#ff6b6b,#e5484d)", color: "#c93a3f" },
+  Event: { icon: "cal", grad: "linear-gradient(135deg,#a56bff,#6a3de8)", color: "#6a3de8" },
+  Reminder: { icon: "clock", grad: "linear-gradient(135deg,#ffb63d,#f28a1a)", color: "#b9852b" },
+  General: { icon: "horn", grad: "linear-gradient(135deg,#2b9bff,#1a62e6)", color: "#1b5fd6" }
+};
+const ANNOUNCEMENTS = [
+  { id: 1, title: "Obstacle Course Activity this Thursday", category: "Event", author: "Mr. Luis Reyes", date: "2026-09-29", read: false, eventDate: "2026-10-01", eventTime: "10:30 AM",
+    body: "Please wear comfortable clothes and rubber shoes for our Physical Education obstacle course. Bring a water bottle and a small towel." },
+  { id: 2, title: "Quiz schedule moved to next week", category: "Important", author: "Ms. Carla Santos", date: "2026-09-28", read: false,
+    body: "The Basic Numeracy quiz on counting and number recognition has moved to Monday. Please review the practice worksheet in Materials before then." },
+  { id: 3, title: "Bring materials for Paper Weaving", category: "Reminder", author: "Ms. Angela Ramos", date: "2026-09-27", read: false, eventDate: "2026-10-07", eventTime: "2:30 PM",
+    body: "For our Arts and Crafts class, please bring colored paper, child-safe scissors and a glue stick." },
+  { id: 4, title: "Greetings and Taking Turns worksheet posted", category: "General", author: "Ms. Dana Cruz", date: "2026-09-25", read: true,
+    body: "The worksheet for this week's Social Skills lesson is now available in Materials. Practice the greetings with a family member before Friday." },
+  { id: 5, title: "Parent-teacher conference sign-ups open", category: "Event", author: "Academy Office", date: "2026-09-22", read: true, eventDate: "2026-10-15", eventTime: "1:00 PM",
+    body: "Sign-ups for parent-teacher conferences are now open. Please choose a time slot with the front office on or before October 8." },
+  { id: 6, title: "Welcome to the new school month", category: "General", author: "Academy Office", date: "2026-09-01", read: true,
+    body: "Thank you for a great start to the term. Keep checking this page for updates on classes, activities and events." }
+];
+
+// ---- Helpers ----
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = (iso, o) => new Date(iso + "T00:00:00").toLocaleDateString("en-US", o || { month: "short", day: "numeric", year: "numeric" });
+$("greet").textContent = (h => h < 12 ? "Good morning," : h < 18 ? "Good afternoon," : "Good evening,")(new Date().getHours());
+
+const state = { tab: "all", q: "", open: null };
+const unreadCount = () => ANNOUNCEMENTS.filter(a => !a.read).length;
+
+function renderStats() {
+  const n = unreadCount();
+  $("stats").innerHTML = [
+    ["horn", "All", ANNOUNCEMENTS.length, "Announcements"],
+    ["bell", "Unread", n, "Waiting for you"],
+    ["alert", "Important", ANNOUNCEMENTS.filter(a => a.category === "Important").length, "Needs attention"],
+    ["cal", "Events", ANNOUNCEMENTS.filter(a => a.category === "Event").length, "Coming up"]
+  ].map(([ic, name, val, sub]) =>
+    `<div class="panel stat"><div class="ico">${icon(ic)}</div><div><span>${name}</span><b>${val}</b><small>${sub}</small></div></div>`).join("");
+  $("bellBadge").textContent = n; $("bellBadge").style.display = n ? "" : "none";
+  $("bellBtn").setAttribute("aria-label", `Notifications (${n} unread)`);
+  $("markAll").disabled = !n;
+}
+function renderTabs() {
+  $("tabs").innerHTML = ["all", "unread", ...Object.keys(CAT)].map(t =>
+    `<button class="tab" type="button" role="tab" data-tab="${t}" aria-selected="${state.tab === t}">${t === "all" ? "All" : t === "unread" ? "Unread" : t}</button>`).join("");
+}
+function renderList() {
+  const q = state.q.toLowerCase();
+  const rows = ANNOUNCEMENTS.filter(a =>
+    (state.tab === "all" || (state.tab === "unread" ? !a.read : a.category === state.tab)) &&
+    (!q || (a.title + " " + a.body + " " + a.author).toLowerCase().includes(q)))
+    .sort((a, b) => b.date.localeCompare(a.date));
+  $("list").innerHTML = rows.length ? rows.map(a => {
+    const c = CAT[a.category], open = state.open === a.id;
+    return `<article class="item${open ? " open" : ""}">
+      <button class="head" type="button" data-id="${a.id}" aria-expanded="${open}">
+        <div class="i-main"><div class="tile" style="background:${c.grad}">${icon(c.icon)}</div>
+          <div><strong>${a.read ? "" : '<i class="unread" title="Unread"></i>'}${esc(a.title)}</strong>
+            <div class="i-meta"><span class="pill" style="background:${c.color}">${a.category}</span><span>${esc(a.author)}</span><span>${fmt(a.date)}</span></div></div></div>
+        <span class="chev">${icon("chev")}</span></button>
+      <p class="body">${esc(a.body)}</p></article>`;
+  }).join("") : `<p class="empty">No announcements found. Clear the search or pick another filter.</p>`;
+}
+function renderEvents() {
+  const ev = ANNOUNCEMENTS.filter(a => a.eventDate).sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+  $("events").innerHTML = ev.length ? ev.map(a =>
+    `<a class="up-item" href="calendar.html"><div class="date"><small>${fmt(a.eventDate, { month: "short" })}</small><b>${new Date(a.eventDate + "T00:00:00").getDate()}</b></div>
+      <div><strong>${esc(a.title)}</strong><span>${esc(a.eventTime)}</span></div><span class="chev">${icon("chev")}</span></a>`).join("")
+    : `<p class="none">No upcoming events. You're all caught up!</p>`;
+}
+
+$("list").addEventListener("click", e => {
+  const b = e.target.closest("[data-id]"); if (!b) return;
+  const id = +b.dataset.id, a = ANNOUNCEMENTS.find(x => x.id === id);
+  state.open = state.open === id ? null : id;
+  if (state.open && !a.read) { a.read = true; renderStats(); }
+  renderList();
+});
+$("tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (!b) return; state.tab = b.dataset.tab; renderTabs(); renderList(); });
+$("q").addEventListener("input", e => { state.q = e.target.value.trim(); renderList(); });
+$("markAll").addEventListener("click", () => { ANNOUNCEMENTS.forEach(a => a.read = true); renderStats(); renderList(); });
+
+renderStats(); renderTabs(); renderList(); renderEvents();
+</script>
+</body>
+</html>
